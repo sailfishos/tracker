@@ -1,6 +1,6 @@
 Name:       tracker
 Summary:    Desktop-neutral metadata database and search tool
-Version:    3.3.3
+Version:    3.7.0
 Release:    1
 License:    LGPLv2+ and GPLv2+
 URL:        https://gnome.pages.gitlab.gnome.org/tracker/
@@ -8,6 +8,7 @@ Source0:    %{name}-%{version}.tar.bz2
 Source1:    remove-tracker2-db.sh
 Patch1:     0001-Always-insert-timestamps-into-the-database-as-string.patch
 Patch2:     0002-portal-Allow-D-Bus-activation-only-through-systemd.patch
+Patch3:     0003-Force-Y-year-modifier-if-check-fails.patch
 
 BuildRequires:  meson >= 0.50
 BuildRequires:  vala-devel >= 0.16
@@ -22,7 +23,7 @@ BuildRequires:  pkgconfig(glib-2.0) >= 2.46.0
 BuildRequires:  pkgconfig(icu-uc)
 BuildRequires:  pkgconfig(icu-i18n)
 BuildRequires:  pkgconfig(libxml-2.0) >= 2.6
-BuildRequires:  pkgconfig(libsoup-2.4) >= 2.40
+BuildRequires:  pkgconfig(libsoup-3.0)
 BuildRequires:  pkgconfig(sqlite3) >= 3.11
 BuildRequires:  pkgconfig(systemd)
 BuildRequires:  pkgconfig(json-glib-1.0) >= 1.0
@@ -60,9 +61,11 @@ Development files for %{name}.
 
 %build
 %meson -Dman=false -Ddocs=false \
+       -Davahi=disabled \
        -Dstemmer=disabled \
        -Dunicode_support=icu \
        -Dbash_completion=false \
+       -Dsoup=soup3 \
        -Dsystemd_user_services_dir=%{_userunitdir}
 
 %meson_build
@@ -87,14 +90,14 @@ fi
 %files -f tracker3.lang
 %defattr(-,root,root,-)
 %license COPYING COPYING.LGPL COPYING.GPL
-%{_bindir}/tracker3
-%{_libexecdir}/tracker3/
+%{_bindir}/tracker3*
+#{_libexecdir}/tracker3/
 %{_libexecdir}/tracker-xdg-portal-3
 %{_libdir}/libtracker-sparql-*.so.*
-%{_libdir}/tracker-3.0/libtracker-remote-soup2.so
+%{_libdir}/tracker-3.0/libtracker-http-soup3.so
+%{_libdir}/tracker-3.0/libtracker-parser-libicu.so
 %{_datadir}/dbus-1/services/org.freedesktop.portal.Tracker.service
-%{_datadir}/tracker3/stop-words/
-%{_datadir}/tracker3/ontologies/
+%{_datadir}/tracker3/commands/
 %{_userunitdir}/tracker-xdg-portal-3.service
 %attr(0755, -, -) %{_oneshotdir}/remove-tracker2-db.sh
 
